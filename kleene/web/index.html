@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kleene · 正则引擎工作台</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="topbar">
+  <div class="brand">
+    <span class="logo">✦</span>
+    <div>
+      <h1>Kleene</h1>
+      <p class="subtitle">线性时间正则引擎 · NFA → Pike VM / DFA 可视化工作台</p>
+    </div>
+  </div>
+  <div class="badges">
+    <span id="health" class="badge">connecting…</span>
+    <span class="badge accent">零依赖</span>
+    <span class="badge">O(n) 无回溯</span>
+  </div>
+</header>
+
+<section class="controlbar">
+  <div class="field grow">
+    <label>正则表达式</label>
+    <input id="pattern" type="text" spellcheck="false" autocomplete="off"
+           value="(a|b)+c?\d+">
+  </div>
+  <div class="field">
+    <label>标志 flags</label>
+    <input id="flags" type="text" spellcheck="false" class="small"
+           value="" placeholder="i / s / m">
+  </div>
+  <div class="field grow wide">
+    <label>待测文本</label>
+    <input id="text" type="text" spellcheck="false" autocomplete="off"
+           value="abababc42 and more">
+  </div>
+  <div class="field examples">
+    <label>示例</label>
+    <select id="preset">
+      <option value="">载入示例…</option>
+      <option data-p="(\d{4})-(\d{2})-(\d{2})" data-t="today is 2026-10-25 ok" data-f="">捕获组：日期</option>
+      <option data-p="[\w.+-]+@[\w-]+\.[\w.-]+" data-t="mail a@b.com or x@y.dev" data-f="">邮箱</option>
+      <option data-p="(a|b)+c?\d+" data-t="abababc42 and more" data-f="">交替与量词</option>
+      <option data-p="https?://[^\s]+" data-t="see https://x.com/p?q=1 now" data-f="">URL</option>
+      <option data-p="\b\w+(\.\w+)*\b" data-t="dot.separated.words here" data-f="">单词边界</option>
+      <option data-p="a*?(?:ab)+?" data-t="ababab" data-f="">惰性量词</option>
+      <option data-p="(a+)+b" data-t="aaaaaaaaaaaaaaaaaaaa" data-f="">灾难回溯对照</option>
+    </select>
+  </div>
+</section>
+
+<div class="errorbar" id="errorbox" hidden></div>
+
+<nav class="tabs">
+  <button class="tab active" data-tab="build">① 匹配 Build</button>
+  <button class="tab" data-tab="nfa">② NFA 自动机</button>
+  <button class="tab" data-tab="dfa">③ DFA 子集构造</button>
+  <button class="tab" data-tab="trace">④ 执行追踪 Trace</button>
+  <button class="tab" data-tab="bench">⑤ 线性时间基准</button>
+  <button class="tab" data-tab="cheat">⑥ 语法速查</button>
+</nav>
+
+<main>
+  <!-- Build -->
+  <section class="panel active" id="panel-build">
+    <div class="cards">
+      <div class="card stat"><span class="k">匹配数</span><span class="v" id="stat-matches">0</span></div>
+      <div class="card stat"><span class="k">NFA 状态</span><span class="v" id="stat-states">0</span></div>
+      <div class="card stat"><span class="k">捕获组</span><span class="v" id="stat-groups">0</span></div>
+      <div class="card stat"><span class="k">DFA 路径</span><span class="v" id="stat-dfa">—</span></div>
+    </div>
+    <div class="card">
+      <h2>匹配高亮</h2>
+      <div id="highlight" class="highlight"></div>
+    </div>
+    <div class="card">
+      <h2>捕获明细</h2>
+      <table class="grid" id="match-table">
+        <thead><tr><th>#</th><th>span</th><th>match</th><th>groups</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- NFA -->
+  <section class="panel" id="panel-nfa">
+    <div class="canvas-card">
+      <div class="canvas-head">
+        <h2>Thompson NFA</h2>
+        <div class="legend">
+          <span class="lg start">起始</span>
+          <span class="lg accept">接受</span>
+          <span class="lg eps">ε 边（虚线）</span>
+          <span class="lg active">当前活跃</span>
+        </div>
+        <div class="anim">
+          <button id="nfa-play" class="btn">播放</button>
+          <input id="nfa-slider" type="range" min="0" max="0" value="0">
+        </div>
+      </div>
+      <canvas id="nfa-canvas"></canvas>
+    </div>
+  </section>
+
+  <!-- DFA -->
+  <section class="panel" id="panel-dfa">
+    <div class="canvas-card">
+      <div class="canvas-head">
+        <h2>子集构造 DFA</h2>
+        <div class="legend">
+          <span class="lg start">起始</span>
+          <span class="lg accept">接受</span>
+          <span class="lg note">节点标注为 NFA 状态子集</span>
+        </div>
+      </div>
+      <canvas id="dfa-canvas"></canvas>
+      <p class="hint" id="dfa-hint" hidden>含零宽断言的模式不构造 DFA，仅由 Pike VM 执行。</p>
+    </div>
+  </section>
+
+  <!-- Trace -->
+  <section class="panel" id="panel-trace">
+    <div class="card">
+      <h2>逐字符执行追踪（Pike VM 线程）</h2>
+      <table class="grid mono" id="trace-table">
+        <thead><tr><th>position</th><th>char</th><th>活跃 NFA 状态</th><th>到达的 accept end</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- Bench -->
+  <section class="panel" id="panel-bench">
+    <div class="card">
+      <h2>灾难性回溯：<code>(a+)+b</code> 作用于 a<sup>n</sup></h2>
+      <p class="hint">回溯引擎（Python re）指数级耗时，n&gt;24 后不再统计以免挂起；Kleene 保持线性。</p>
+      <canvas id="bench-path-canvas"></canvas>
+    </div>
+    <div class="card">
+      <h2>普通模式：<code>\d+</code> 基线（两者皆线性）</h2>
+      <canvas id="bench-ord-canvas"></canvas>
+    </div>
+    <div class="card">
+      <button id="bench-run" class="btn">重新运行基准</button>
+      <table class="grid mono" id="bench-table"></table>
+    </div>
+  </section>
+
+  <!-- Cheat sheet -->
+  <section class="panel" id="panel-cheat">
+    <div class="card cheat">
+      <h2>支持的语法</h2>
+      <table class="grid">
+        <tbody>
+          <tr><td><code>a z 0</code></td><td>普通字面量</td></tr>
+          <tr><td><code>. </code></td><td>任意字符（<code>s</code> 标志下含换行）</td></tr>
+          <tr><td><code>[abc]</code> <code>[a-z]</code> <code>[^0-9]</code></td><td>字符类 / 范围 / 取反</td></tr>
+          <tr><td><code>\d \w \s</code> / <code>\D \W \S</code></td><td>数字 / 单词 / 空白及取反</td></tr>
+          <tr><td><code>* + ? {n} {n,} {n,m}</code></td><td>量词，默认贪婪</td></tr>
+          <tr><td><code>*? +? ?? {n,m}?</code></td><td>惰性（最短）量词</td></tr>
+          <tr><td><code>ab|cd</code></td><td>交替，从左到右优先</td></tr>
+          <tr><td><code>(...)</code></td><td>捕获组（submatch）</td></tr>
+          <tr><td><code>(?:...)</code></td><td>非捕获组</td></tr>
+          <tr><td><code>^ $</code></td><td>行首 / 行尾（<code>m</code> 标志逐行）</td></tr>
+          <tr><td><code>\b \B</code></td><td>单词边界 / 非边界</td></tr>
+          <tr><td><code>\t \n \r \f \v \xHH \uHHHH</code></td><td>转义字符</td></tr>
+        </tbody>
+      </table>
+      <h2>明确不支持</h2>
+      <ul class="notes">
+        <li>反向引用 <code>\1 … \9</code>（与 RE2 一致，属于非正则语言，会显式报错）。</li>
+        <li>对“可为空的子表达式”再次量词化（如 <code>(a?)*</code>）的零宽重复计数，与 Python re 的极端边界处理可能不同；引擎始终线性、不挂起。</li>
+        <li>Lookaround <code>(?=…)</code>、原子组、条件表达式暂不支持。</li>
+      </ul>
+    </div>
+  </section>
+</main>
+
+<footer class="footer">
+  <span>Kleene · Thompson NFA · Pike VM（线性时间 + 捕获组）· 子集构造 DFA</span>
+</footer>
+
+<script src="app.js"></script>
+</body>
+</html>

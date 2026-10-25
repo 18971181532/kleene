@@ -1,0 +1,209 @@
+:root {
+  --bg: #0d1117;
+  --bg2: #111823;
+  --panel: #161d29;
+  --panel2: #1b2433;
+  --border: #273142;
+  --text: #e6edf3;
+  --muted: #8b98a9;
+  --accent: #56d4dd;
+  --accent2: #a78bfa;
+  --green: #4ade80;
+  --amber: #fbbf24;
+  --red: #f87171;
+  --grid: #223047;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: "Segoe UI", "Microsoft YaHei", system-ui, sans-serif;
+  font-size: 14px;
+}
+
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 22px;
+  background: linear-gradient(180deg, var(--bg2), var(--bg));
+  border-bottom: 1px solid var(--border);
+}
+.brand { display: flex; align-items: center; gap: 14px; }
+.logo {
+  font-size: 30px;
+  color: var(--accent);
+  text-shadow: 0 0 18px rgba(86, 212, 221, 0.55);
+}
+.topbar h1 { margin: 0; font-size: 22px; letter-spacing: 1px; }
+.subtitle { margin: 2px 0 0; color: var(--muted); font-size: 12px; }
+.badges { display: flex; gap: 8px; }
+.badge {
+  border: 1px solid var(--border);
+  background: var(--panel);
+  color: var(--muted);
+  border-radius: 999px;
+  padding: 4px 12px;
+  font-size: 12px;
+}
+.badge.accent { color: var(--accent); border-color: rgba(86,212,221,.4); }
+.badge.ok { color: var(--green); border-color: rgba(74,222,128,.4); }
+
+.controlbar {
+  display: flex;
+  gap: 14px;
+  align-items: flex-end;
+  padding: 16px 22px;
+  flex-wrap: wrap;
+  background: var(--bg2);
+  border-bottom: 1px solid var(--border);
+}
+.field { display: flex; flex-direction: column; gap: 6px; }
+.field.grow { flex: 1.4; min-width: 220px; }
+.field.wide { flex: 2; }
+.field.small input { width: 90px; }
+.field label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .5px; }
+.field input, .field select {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  color: var(--text);
+  border-radius: 8px;
+  padding: 9px 12px;
+  font-family: "Cascadia Code", Consolas, monospace;
+  font-size: 13px;
+  outline: none;
+}
+.field input:focus, .field select:focus { border-color: var(--accent); }
+.field.examples select { min-width: 190px; }
+
+.errorbar {
+  margin: 12px 22px 0;
+  padding: 10px 14px;
+  border: 1px solid rgba(248,113,113,.5);
+  background: rgba(248,113,113,.1);
+  color: var(--red);
+  border-radius: 8px;
+  font-family: Consolas, monospace;
+}
+
+.tabs {
+  display: flex;
+  gap: 4px;
+  padding: 12px 22px 0;
+  flex-wrap: wrap;
+}
+.tab {
+  background: var(--panel);
+  color: var(--muted);
+  border: 1px solid var(--border);
+  border-bottom: none;
+  padding: 9px 16px;
+  border-radius: 10px 10px 0 0;
+  cursor: pointer;
+  font-size: 13px;
+}
+.tab.active { color: var(--accent); background: var(--bg); border-color: var(--accent); }
+
+main { padding: 18px 22px 40px; }
+.panel { display: none; }
+.panel.active { display: block; }
+
+.cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 12px;
+  margin-bottom: 14px;
+}
+.card {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 16px 18px;
+  margin-bottom: 14px;
+}
+.card.stat { display: flex; flex-direction: column; gap: 6px; }
+.card.stat .k { color: var(--muted); font-size: 12px; }
+.card.stat .v { font-size: 26px; color: var(--accent); font-weight: 600; }
+.card h2 { margin: 0 0 12px; font-size: 15px; color: var(--text); }
+.hint { color: var(--muted); font-size: 12px; }
+
+.highlight {
+  font-family: Consolas, "Cascadia Code", monospace;
+  font-size: 15px;
+  line-height: 2;
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+.highlight .m {
+  background: rgba(86,212,221,.18);
+  border-bottom: 2px solid var(--accent);
+  border-radius: 4px;
+  padding: 1px 2px;
+}
+.highlight .g0 { color: var(--accent); }
+.highlight .g1 { color: var(--accent2); }
+.highlight .g2 { color: var(--green); }
+.highlight .g3 { color: var(--amber); }
+
+.grid { width: 100%; border-collapse: collapse; font-size: 13px; }
+.grid th, .grid td {
+  text-align: left;
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--border);
+}
+.grid th { color: var(--muted); font-weight: 500; font-size: 12px; }
+.grid.mono td { font-family: Consolas, monospace; }
+.grid tr:hover td { background: var(--panel2); }
+code { font-family: Consolas, monospace; color: var(--accent); }
+
+.canvas-card {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 16px;
+}
+.canvas-head {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: 10px;
+}
+.canvas-head h2 { margin: 0; font-size: 15px; }
+.legend { display: flex; gap: 12px; flex-wrap: wrap; flex: 1; }
+.lg { font-size: 12px; color: var(--muted); display: inline-flex; align-items: center; gap: 6px; }
+.lg::before { content: ""; width: 14px; height: 14px; border-radius: 50%; background: #3a475c; border: 2px solid #5a6b86; }
+.lg.start::before { background: #2b3d5c; border-color: var(--accent); }
+.lg.accept::before { background: rgba(74,222,128,.25); border-color: var(--green); }
+.lg.eps::before { border-radius: 0; width: 18px; height: 0; border-top: 2px dashed var(--muted); background: none; }
+.lg.active::before { background: var(--accent); border-color: var(--accent); box-shadow: 0 0 10px var(--accent); }
+.lg.note::before { display: none; }
+.anim { display: flex; align-items: center; gap: 10px; }
+.btn {
+  background: var(--panel2);
+  color: var(--accent);
+  border: 1px solid var(--accent);
+  border-radius: 8px;
+  padding: 7px 16px;
+  cursor: pointer;
+  font-size: 13px;
+}
+.btn:hover { background: rgba(86,212,221,.12); }
+input[type=range] { width: 220px; accent-color: var(--accent); }
+canvas { width: 100%; display: block; }
+
+.cheat ul.notes { color: var(--muted); line-height: 1.8; padding-left: 20px; }
+.cheat td { vertical-align: top; }
+.cheat td:first-child { white-space: nowrap; width: 40%; }
+
+.footer {
+  text-align: center;
+  color: var(--muted);
+  font-size: 12px;
+  padding: 20px;
+  border-top: 1px solid var(--border);
+}

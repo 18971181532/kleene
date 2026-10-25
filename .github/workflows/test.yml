@@ -1,0 +1,40 @@
+name: tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-24.04, windows-latest]
+        python: ["3.9", "3.10", "3.11", "3.12"]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python ${{ matrix.python }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Install
+        run: python -m pip install -e .
+      - name: Run example
+        run: python examples/extract.py
+      - name: Run tests
+        run: python -m unittest discover -s tests -v
+      - name: CLI smoke tests
+        shell: bash
+        run: |
+          kleene --version
+          kleene match '(\d{4})-(\d{2})-(\d{2})' 'today is 2026-10-25'
+          kleene findall '\w+' 'hello world 42'
+          kleene sub '(\d+)' '[\1]' 'a1 b22'
+          kleene explain '(a|b)+c?\d+' --json
+          kleene nfa 'ab'
+          kleene dfa 'ab'
+          kleene trace 'a+b?' 'aab'
+          kleene bench --json

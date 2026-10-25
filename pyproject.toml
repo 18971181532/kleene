@@ -1,0 +1,39 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "kleene"
+version = "0.1.0"
+description = "Zero-dependency linear-time regex engine and NFA/DFA visual workbench: AST to Thompson NFA, a Pike VM with capture groups and no catastrophic backtracking, and subset-construction DFA."
+readme = "README.md"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+authors = [{ name = "遥か" }]
+keywords = ["regex", "regular-expressions", "nfa", "dfa", "automata",
+            "thompson", "compiler", "re2", "linear-time", "visualization"]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Topic :: Text Processing",
+    "Topic :: Software Development :: Compilers",
+]
+dependencies = []
+
+[project.scripts]
+kleene = "kleene.cli:main"
+
+[project.urls]
+Homepage = "https://github.com/18971181532/kleene"
+Source = "https://github.com/18971181532/kleene"
+
+[tool.setuptools]
+packages = ["kleene"]
+
+[tool.setuptools.package-data]
+kleene = ["web/*.html", "web/*.css", "web/*.js"]
