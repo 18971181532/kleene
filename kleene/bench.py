@@ -37,12 +37,17 @@ def _median_ms(fn, repeat=3):
     return round(best, 4)
 
 
-def _re_safe(pattern, text, cap=24):
-    """Run re only when the input is small enough not to blow up."""
+def _re_safe(pattern, text, cap=20):
+    """Run re only when the input is small enough not to blow up.
+
+    The pathological case is exponential; on a slow or throttled CI runner
+    even n=24 can take many seconds, so we cap at n=20 (about 2**20 paths),
+    which still shows the exponential curve clearly.
+    """
     if re is None or len(text) > cap:
         return None
     try:
-        return _median_ms(lambda: re.search(pattern, text))
+        return _median_ms(lambda: re.search(pattern, text), repeat=1)
     except Exception:
         return None
 
@@ -58,7 +63,7 @@ def bench_pathological(sizes=None):
         re_ms = _re_safe(PATHOLOGICAL, text)
         rows.append({"n": n, "kleene_ms": kleene_ms, "re_ms": re_ms})
     return {"pattern": PATHOLOGICAL, "kind": "pathological", "rows": rows,
-            "note": "re is omitted beyond n=24 because it is exponential "
+            "note": "re is omitted beyond n=20 because it is exponential "
                     "and would hang."}
 
 

@@ -13,7 +13,7 @@ def _request(url, data=None):
     body = json.dumps(data).encode() if post else None
     req = urllib.request.Request(url, data=body, headers=headers,
                                  method="POST" if post else "GET")
-    with urllib.request.urlopen(req, timeout=10) as resp:
+    with urllib.request.urlopen(req, timeout=30) as resp:
         return resp.status, resp.read().decode()
 
 
